@@ -1,10 +1,11 @@
-[gd_scene load_steps=10 format=3 uid="uid://b8q6vb1xi6qn"]
+[gd_scene load_steps=12 format=3 uid="uid://b8q6vb1xi6qn"]
 
 [ext_resource type="Script" path="res://playable_character.gd" id="1_0ir11"]
 [ext_resource type="Texture2D" uid="uid://cvf2qmbncg4o7" path="res://icon.svg" id="2_8p30f"]
 [ext_resource type="Texture2D" uid="uid://bmpflwrf1bcgi" path="res://Sword.png" id="3_mbpnf"]
 [ext_resource type="Script" path="res://Hitbox.gd" id="4_e20y3"]
 [ext_resource type="Script" path="res://character_knockback.gd" id="5_qvoav"]
+[ext_resource type="Script" path="res://Hurtbox.gd" id="6_u7jwc"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_cose5"]
 
@@ -58,6 +59,10 @@ _data = {
 "Slash": SubResource("Animation_jx2m3")
 }
 
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_oseix"]
+radius = 12.6367
+height = 29.7305
+
 [node name="Player" type="CharacterBody2D"]
 position = Vector2(0.154344, 0)
 scale = Vector2(1, 1.09278)
@@ -69,6 +74,7 @@ scale = Vector2(0.158203, 0.160156)
 texture = ExtResource("2_8p30f")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+visible = false
 position = Vector2(0, -3)
 shape = SubResource("RectangleShape2D_cose5")
 
@@ -83,6 +89,8 @@ texture = ExtResource("3_mbpnf")
 
 [node name="Hitbox" type="Area2D" parent="Sword"]
 script = ExtResource("4_e20y3")
+knockback = 50
+angle = 10
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Sword/Hitbox"]
 position = Vector2(10.0162, -14.7959)
@@ -97,3 +105,13 @@ libraries = {
 
 [node name="character_knockback" type="Node" parent="."]
 script = ExtResource("5_qvoav")
+
+[node name="Hurtbox" type="Area2D" parent="."]
+script = ExtResource("6_u7jwc")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
+position = Vector2(0, -4)
+scale = Vector2(0.7, 0.7)
+shape = SubResource("CapsuleShape2D_oseix")
+
+[connection signal="area_entered" from="Hurtbox" to="." method="_on_hurtbox_area_entered"]
