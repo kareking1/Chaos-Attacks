@@ -1,4 +1,4 @@
-extends StaticBody2D
+extends CharacterBody2D
 
 @export var health := 50
 #Check every frame to see if health is <= 0, if so we delete the Enemy
@@ -26,5 +26,5 @@ func take_damage(amount: int) -> void:
 func _on_hurtbox_area_entered(hitbox: Hitbox) -> void:
 	if hitbox == null:
 		return
-		
+	
 	take_damage(hitbox.damage)

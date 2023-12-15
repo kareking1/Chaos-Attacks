@@ -82,8 +82,7 @@ shape = SubResource("RectangleShape2D_cose5")
 zoom = Vector2(0.5, 0.5)
 
 [node name="Sword" type="Sprite2D" parent="."]
-position = Vector2(22.6263, -1.44857)
-rotation = 2.18166
+position = Vector2(20.8457, -3.66039)
 scale = Vector2(0.104051, 0.0848039)
 texture = ExtResource("3_mbpnf")
 
@@ -102,6 +101,7 @@ disabled = true
 libraries = {
 "": SubResource("AnimationLibrary_gsoqx")
 }
+next/Slash = &"Slash"
 
 [node name="character_knockback" type="Node" parent="."]
 script = ExtResource("5_qvoav")

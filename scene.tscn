@@ -1,7 +1,8 @@
-[gd_scene load_steps=10 format=3 uid="uid://dpmn3wioqnbc0"]
+[gd_scene load_steps=11 format=3 uid="uid://dpmn3wioqnbc0"]
 
 [ext_resource type="PackedScene" uid="uid://b8q6vb1xi6qn" path="res://player.tscn" id="1_6gfu1"]
-[ext_resource type="PackedScene" uid="uid://c7d2ump0i2kdq" path="res://Enemy.tscn" id="2_oysbt"]
+[ext_resource type="PackedScene" uid="uid://cgcjbodubjwtv" path="res://enemy.tscn" id="2_21nwp"]
+[ext_resource type="Script" path="res://Enemy.gd" id="3_w4j27"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_8ro2y"]
 size = Vector2(385, 60)
@@ -62,13 +63,16 @@ scale = Vector2(104.75, 8.75)
 texture = SubResource("PlaceholderTexture2D_o6l73")
 
 [node name="Player" parent="." instance=ExtResource("1_6gfu1")]
+position = Vector2(0.154, 0)
 
 [node name="Blast_Zone" type="Area2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Blast_Zone"]
+visible = false
 position = Vector2(-0.463028, 19.3634)
 shape = SubResource("RectangleShape2D_tt2dw")
 
-[node name="Enemy" parent="." instance=ExtResource("2_oysbt")]
+[node name="Enemy" parent="." instance=ExtResource("2_21nwp")]
+script = ExtResource("3_w4j27")
 
 [connection signal="body_exited" from="Blast_Zone" to="Player" method="_on_blast_zone_body_exited"]

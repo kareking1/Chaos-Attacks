@@ -1,47 +1,43 @@
-[gd_scene load_steps=8 format=3 uid="uid://c7d2ump0i2kdq"]
+[gd_scene load_steps=7 format=3 uid="uid://cgcjbodubjwtv"]
 
-[ext_resource type="Script" path="res://Enemy.gd" id="1_faxge"]
-[ext_resource type="Script" path="res://Hurtbox.gd" id="2_pqjcu"]
-[ext_resource type="Script" path="res://Hitbox.gd" id="3_4lh5e"]
+[ext_resource type="Script" path="res://Hurtbox.gd" id="1_04m44"]
+[ext_resource type="Script" path="res://Hitbox.gd" id="2_yl3jx"]
 
-[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_lcklf"]
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_yknmy"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_bga40"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_t7qaf"]
 size = Vector2(19.0453, 17.4385)
 
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_dpp2j"]
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_0qhry"]
 radius = 5.89569
 height = 14.3797
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_k6jq0"]
+[sub_resource type="CircleShape2D" id="CircleShape2D_ydy60"]
 
-[node name="Enemy" type="StaticBody2D"]
-script = ExtResource("1_faxge")
+[node name="Enemy" type="CharacterBody2D"]
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 position = Vector2(84.7346, 6.47087)
 scale = Vector2(19.2342, 18.2246)
-texture = SubResource("PlaceholderTexture2D_lcklf")
+texture = SubResource("PlaceholderTexture2D_yknmy")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(84.7813, 6.52327)
-shape = SubResource("RectangleShape2D_bga40")
+shape = SubResource("RectangleShape2D_t7qaf")
 
 [node name="Hurtbox" type="Area2D" parent="."]
-script = ExtResource("2_pqjcu")
+script = ExtResource("1_04m44")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
 position = Vector2(85.1976, 6.47087)
-shape = SubResource("CapsuleShape2D_dpp2j")
+shape = SubResource("CapsuleShape2D_0qhry")
 
 [node name="Hitbox" type="Area2D" parent="."]
-script = ExtResource("3_4lh5e")
-knockback = 1500
+script = ExtResource("2_yl3jx")
+knockback = 150
 angle = 45
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
 position = Vector2(85, 5)
 scale = Vector2(1.25, 1.25)
-shape = SubResource("CircleShape2D_k6jq0")
-
-[connection signal="area_entered" from="Hurtbox" to="." method="_on_hurtbox_area_entered"]
+shape = SubResource("CircleShape2D_ydy60")

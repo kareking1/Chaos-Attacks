@@ -3,10 +3,12 @@ extends CharacterBody2D
 
 const ACCELERATION = 80.0
 const MAX_SPEED = 450.0
-const JUMP_VELOCITY = -750.0
-const MOVEMENT_HORIZONTAL_DECELERATION = 0.85
-const KNOCKBACK_HORIZONTAL_DECELERATION = 0.98
+const JUMP_VELOCITY = -850.0
+const GROUND_DECELERATION = 0.85
+const WEAK_AIR_DECELERATION = 1.33
+const AIR_DECELERATION = 0.975
 const HORIZONTAL_CLOSE_TO_ZERO = 40
+const HIT_STUN_MAX_TIME = 45
 @export var health = 40
 var is_in_knockback = false
 var hit_direction = 1
@@ -18,8 +20,7 @@ var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 #Records the position where this actor spawned
 var home_position
 #Links the Animation Player node to this script
-#In our actual project, I'd put this in the _ready function too
-@onready var animation_player := $AnimationPlayer
+@onready var animation_player = $AnimationPlayer
 @onready var knockback_handler = $character_knockback
 
 # Called when the node enters the scene tree for the first time.
@@ -40,20 +41,25 @@ func is_velocity_close_to_zero(num):
 	
 func hit(knockback, angle, damage):
 	is_in_knockback = true
+	#character_knockback returns a Vector2, which is being passed to returned_velocity
 	var returned_velocity = knockback_handler.get_knockback(knockback, angle)
-	velocity.x += change_velocity_direction_according_to_hit_direction(returned_velocity.x)
+	#This velocity will be applied in the _physics_process func
+	velocity.x = returned_velocity.x
 	velocity.y += -returned_velocity.y
-	print(returned_velocity)
 	
 	take_damage(damage)
 	
 func change_velocity_direction_according_to_hit_direction(given_velocity):
-	if((given_velocity < 0 and hit_direction < 0) or (given_velocity > 0 and hit_direction > 0)):
+	#Make sure the velocity moves the character in the correct position
+	if given_velocity < 0 and hit_direction < 0 or given_velocity > 0 and hit_direction > 0:
+		#If they are the same direction, just return it back
 		return given_velocity
-	elif(given_velocity > 0 and hit_direction < 0):
+	elif given_velocity > 0 and hit_direction < 0 or given_velocity < 0 and hit_direction > 0:
+		#Otherwise, swap the velocity's direction by multiplying by -1
 		return -given_velocity
-	elif(given_velocity < 0 and hit_direction > 0):
-		return -given_velocity
+	else:
+		#Safety net for the odd case where the given_velocity is zero, prevents a crash
+		return 0
 	
 func take_damage(amount: int) -> void:
 	#Make sure health doesn't go below 0
@@ -64,23 +70,48 @@ func take_damage(amount: int) -> void:
 		health -= amount
 		print("Player hit: " + str(health))
 	
-#WORK IN PROGRESS
 #Just like _process, _physics_process gets called every frame
 func _physics_process(delta):
 	# Add the gravity.
 	if not is_on_floor():
 		velocity.y += gravity * delta
+	#I followed this site: https://docs.godotengine.org/en/stable/classes/class_raycast2d.html
+	#Basically, the raycast allows the player to detect any hitboxes around them (75 is a very small range, go smaller and it might not even detect hitboxes)
+	#If the player is in knockback and any hitboxes were detected, it changes the hit_direction accordingly
+	#Having raycasts every frame is an intended use for it, so it's not resource heavy
+	#However, I don't like this usage of it since I'm using this to check if the hitbox is hitting you
+	#with its left side or right side and launch you accordingly. This solution may be prone to errors
+	#from edge cases and might need to be reworked later on once I'm more experienced
+	#For now, I'm going to mark every place where code might need to be reworked with the following:
+	#---REMAKE MAY BE NEEDED---
+	var space_state = get_world_2d().direct_space_state
+	var query_right = PhysicsRayQueryParameters2D.create(global_position, Vector2(global_position.x + 75, global_position.y), 2)
+	query_right.exclude = [self]
+	query_right.collide_with_areas = true
+	var result_right = space_state.intersect_ray(query_right)
+	var query_left = PhysicsRayQueryParameters2D.create(global_position, Vector2(global_position.x - 75, global_position.y), 2)
+	query_left.exclude = [self]
+	query_left.collide_with_areas = true
+	var result_left = space_state.intersect_ray(query_left)
+	if is_in_knockback and result_left.size() > 0:
+		hit_direction = 1
+	elif is_in_knockback and result_right.size() > 0:
+		hit_direction = -1
 	if is_in_knockback:
+		velocity.x = change_velocity_direction_according_to_hit_direction(velocity.x)
 		#If the velocity is too low, rather than taking forever to stop, we set it to 0
 		if is_velocity_close_to_zero(velocity.x):
 			velocity.x = 0
 		#If the velocity isn't too low, we decelerate it
+		elif knockback_stun_timer <= HIT_STUN_MAX_TIME / 15:
+			velocity.x *= WEAK_AIR_DECELERATION
 		else:
-			velocity.x *= KNOCKBACK_HORIZONTAL_DECELERATION
+			velocity.x *= AIR_DECELERATION
 		#For some reason, doesn't allow me to do ++ ?
 		knockback_stun_timer += 1
+		
 		move_and_slide()
-		if knockback_stun_timer > 20:
+		if knockback_stun_timer > HIT_STUN_MAX_TIME:
 			is_in_knockback = false
 		return
 	knockback_stun_timer = 0
@@ -110,8 +141,10 @@ func _physics_process(delta):
 		if is_velocity_close_to_zero(velocity.x):
 			velocity.x = 0
 		#If the velocity isn't too low, we decelerate it
+		elif is_on_floor():
+			velocity.x *= GROUND_DECELERATION
 		else:
-			velocity.x *= MOVEMENT_HORIZONTAL_DECELERATION
+			velocity.x *= AIR_DECELERATION
 	#Moves the player based off velocity
 	move_and_slide()
 
@@ -121,13 +154,8 @@ func _physics_process(delta):
 func _on_blast_zone_body_exited(_body):
 	position = home_position
 
-
 func _on_hurtbox_area_entered(hitbox: Hitbox):
 	if hitbox == null:
 		return
 	knockback_stun_timer = 0
-	if hitbox.global_position.x < global_position.x:
-		hit_direction = -1
-	else:
-		hit_direction = -1
 	hit(hitbox.knockback, hitbox.angle, hitbox.damage)
