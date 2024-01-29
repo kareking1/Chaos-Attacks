@@ -26,6 +26,8 @@ size = Vector2(571.688, 314.727)
 scale = Vector2(6.47905, 6.95424)
 
 [node name="Floor" type="StaticBody2D" parent="."]
+collision_layer = 5
+collision_mask = 5
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
 position = Vector2(0.5, 46)
@@ -37,6 +39,8 @@ scale = Vector2(385.5, 59.75)
 texture = SubResource("CanvasTexture_s0s4a")
 
 [node name="Platform_Right" type="StaticBody2D" parent="."]
+collision_layer = 5
+collision_mask = 5
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Platform_Right"]
 position = Vector2(105.5, -33.5)
@@ -50,6 +54,8 @@ scale = Vector2(107.25, 9)
 texture = SubResource("PlaceholderTexture2D_bnev8")
 
 [node name="Platform_Left" type="StaticBody2D" parent="."]
+collision_layer = 5
+collision_mask = 5
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Platform_Left"]
 position = Vector2(-110.5, -33.5)
@@ -66,6 +72,8 @@ texture = SubResource("PlaceholderTexture2D_o6l73")
 position = Vector2(0.154, 0)
 
 [node name="Blast_Zone" type="Area2D" parent="."]
+collision_layer = 5
+collision_mask = 5
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Blast_Zone"]
 visible = false

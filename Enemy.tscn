@@ -34,10 +34,11 @@ shape = SubResource("CapsuleShape2D_0qhry")
 
 [node name="Hitbox" type="Area2D" parent="."]
 script = ExtResource("2_yl3jx")
-knockback = 150
-angle = 45
+knockback = 90
+angle = 90
+baseTimer = 4
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
 position = Vector2(85, 5)
-scale = Vector2(1.25, 1.25)
+scale = Vector2(2.5, 2.5)
 shape = SubResource("CircleShape2D_ydy60")
